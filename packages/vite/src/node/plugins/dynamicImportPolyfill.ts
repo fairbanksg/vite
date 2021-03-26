@@ -85,10 +85,13 @@ declare const URL: any
 declare const Blob: any
 
 function polyfill(modulePath = '.', importFunctionName = '__import__') {
+  const baseURL = new URL(modulePath, document.baseURI)
   try {
-    self[importFunctionName] = new Function('u', `return import(u)`)
+    self[importFunctionName] = new Function(
+      'u',
+      `return import(new URL(u, '${baseURL}'))`
+    )
   } catch (error) {
-    const baseURL = new URL(modulePath, location)
     const cleanup = (script: any) => {
       URL.revokeObjectURL(script.src)
       script.remove()
